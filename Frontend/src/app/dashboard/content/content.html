@@ -1,0 +1,133 @@
+<section class="content-page">
+  <div class="page-heading"><div><span class="eyebrow">STORE MANAGEMENT</span><h1>Site content</h1><p>Manage storefront settings and published copy without changing code or redeploying the site.</p></div><a class="back-link" routerLink="/dashboard/home">Back to overview</a></div>
+
+  @if (loading) { <div class="notice" role="status">Loading saved content…</div> }
+  @if (errorMessage) { <div class="notice notice-error" role="alert">{{ errorMessage }}</div> }
+  @if (successMessage) { <div class="notice notice-success" role="status">{{ successMessage }}</div> }
+
+  @if (content; as site) {
+    <form class="editor-form" (ngSubmit)="saveContent()">
+      <section class="editor-card">
+        <div class="card-heading"><div><span class="card-step">01</span><div><h2>Store settings</h2><p>Brand details and the optional announcement bar.</p></div></div></div>
+        <div class="field-grid">
+          <label>Store name<input name="storeName" [(ngModel)]="site.brand.storeName" maxlength="80" required></label>
+          <label>Tagline<input name="tagline" [(ngModel)]="site.brand.tagline" maxlength="180"></label>
+          <label>Logo URL<input name="logoUrl" [(ngModel)]="site.brand.logoUrl" maxlength="1000" placeholder="/assets/store-logo.svg or https://…"></label>
+          <label>Favicon URL<input name="faviconUrl" [(ngModel)]="site.brand.faviconUrl" maxlength="1000" placeholder="/favicon.ico"></label>
+          <label>Default SEO title<input name="brandSeoTitle" [(ngModel)]="site.brand.seoTitle" maxlength="160"></label>
+          <label>Contact email<input type="email" name="contactEmail" [(ngModel)]="site.brand.contactEmail" maxlength="254"></label>
+          <label>Contact phone<input name="contactPhone" [(ngModel)]="site.brand.contactPhone" maxlength="40"></label>
+          <label class="field-span-2">Default SEO description<textarea name="brandSeoDescription" [(ngModel)]="site.brand.seoDescription" maxlength="320" rows="2"></textarea></label>
+        </div>
+        <div class="subsection-heading"><div><h3>Announcement bar</h3><p>Optional message shown above the storefront header.</p></div><label class="toggle-field"><input type="checkbox" name="announcementEnabled" [(ngModel)]="site.announcement.enabled"> Enabled</label></div>
+        <div class="field-grid">
+          <label class="field-span-2">Message<input name="announcementText" [(ngModel)]="site.announcement.text" maxlength="180"></label>
+          <label>Button text<input name="announcementButtonText" [(ngModel)]="site.announcement.buttonText" maxlength="50"></label>
+          <label>Button route<input name="announcementHref" [(ngModel)]="site.announcement.href" maxlength="500" placeholder="/products"></label>
+        </div>
+      </section>
+
+      <section class="editor-card">
+        <div class="card-heading"><div><span class="card-step">02</span><div><h2>Header navigation</h2><p>Only same-site routes are accepted for menu links.</p></div></div><button type="button" class="button-outline" (click)="addNavigationLink()">+ Add link</button></div>
+        @if (site.navigation.length) {
+          @for (link of site.navigation; track trackLink($index, link); let i = $index) {
+            <div class="repeat-row nav-row"><label>Label<input [name]="'nav-label-' + i" [(ngModel)]="link.label" maxlength="70" required></label><label>Route<input [name]="'nav-href-' + i" [(ngModel)]="link.href" maxlength="500" placeholder="/products" required></label><label>Order<input type="number" [name]="'nav-order-' + i" [(ngModel)]="link.order" min="0" max="10000"></label><label class="toggle-field"><input type="checkbox" [name]="'nav-enabled-' + i" [(ngModel)]="link.enabled"> Visible</label><button type="button" class="icon-remove" (click)="removeNavigationLink(i)" [attr.aria-label]="'Remove navigation link ' + (i + 1)">×</button></div>
+          }
+        } @else { <p class="empty-copy">No custom navigation links yet. The storefront will keep its built-in links until you add and save links here.</p> }
+      </section>
+
+      <section class="editor-card">
+        <div class="card-heading"><div><span class="card-step">03</span><div><h2>Footer</h2><p>Update the footer description, link groups, and social profiles.</p></div></div><button type="button" class="button-outline" (click)="addFooterGroup()">+ Add link group</button></div>
+        <label>Footer description<textarea name="footerDescription" [(ngModel)]="site.footer.description" rows="2" maxlength="500"></textarea></label>
+        <label class="toggle-field"><input type="checkbox" name="useDefaultFooterLinks" [(ngModel)]="site.footer.useDefaultLinks"> Show built-in footer links when no custom groups are configured</label>
+        @for (group of site.footer.linkGroups; track trackGroup($index, group); let i = $index) {
+          <div class="nested-card">
+            <div class="nested-heading"><h3>Link group {{ i + 1 }}</h3><button type="button" class="text-danger" (click)="removeFooterGroup(i)">Remove group</button></div>
+            <div class="field-grid"><label>Group heading<input [name]="'footer-heading-' + i" [(ngModel)]="group.heading" maxlength="70" required></label><label>Display order<input type="number" [name]="'footer-group-order-' + i" [(ngModel)]="group.order" min="0" max="10000"></label></div>
+            @for (link of group.links; track trackLink($index, link); let j = $index) {
+              <div class="repeat-row nav-row"><label>Label<input [name]="'footer-label-' + i + '-' + j" [(ngModel)]="link.label" maxlength="70" required></label><label>Route<input [name]="'footer-href-' + i + '-' + j" [(ngModel)]="link.href" maxlength="500" required></label><label>Order<input type="number" [name]="'footer-order-' + i + '-' + j" [(ngModel)]="link.order" min="0" max="10000"></label><label class="toggle-field"><input type="checkbox" [name]="'footer-enabled-' + i + '-' + j" [(ngModel)]="link.enabled"> Visible</label><button type="button" class="icon-remove" (click)="removeFooterLink(group, j)" aria-label="Remove footer link">×</button></div>
+            }
+            <button type="button" class="button-small-outline" (click)="addFooterLink(group)">+ Add link</button>
+          </div>
+        }
+        <div class="subsection-heading"><div><h3>Social links</h3><p>Social links must use secure HTTPS URLs.</p></div><button type="button" class="button-small-outline" (click)="addSocialLink()">+ Add social link</button></div>
+        @for (social of site.footer.socialLinks; track trackSocial($index, social); let i = $index) {
+          <div class="repeat-row social-row"><label>Label<input [name]="'social-label-' + i" [(ngModel)]="social.label" maxlength="40" required></label><label>HTTPS URL<input type="url" [name]="'social-url-' + i" [(ngModel)]="social.url" placeholder="https://…" maxlength="500" required></label><label class="toggle-field"><input type="checkbox" [name]="'social-enabled-' + i" [(ngModel)]="social.enabled"> Visible</label><button type="button" class="icon-remove" (click)="removeSocialLink(i)" aria-label="Remove social link">×</button></div>
+        }
+      </section>
+
+      <section class="editor-card">
+        <div class="card-heading"><div><span class="card-step">04</span><div><h2>Homepage content</h2><p>Edit the main headings, descriptions, and calls to action.</p></div></div></div>
+        <div class="field-grid">
+          <label>Hero eyebrow<input name="heroEyebrow" [(ngModel)]="site.homepage.heroEyebrow" maxlength="80"></label>
+          <label>Hero title<input name="heroTitle" [(ngModel)]="site.homepage.heroTitle" maxlength="100"></label>
+          <label>Hero emphasis<input name="heroEmphasis" [(ngModel)]="site.homepage.heroEmphasis" maxlength="100"></label>
+          <label>Primary button text<input name="primaryButtonText" [(ngModel)]="site.homepage.primaryButtonText" maxlength="60"></label>
+          <label>Primary button route<input name="primaryButtonHref" [(ngModel)]="site.homepage.primaryButtonHref" maxlength="500" placeholder="/products"></label>
+          <label>Secondary button text<input name="secondaryButtonText" [(ngModel)]="site.homepage.secondaryButtonText" maxlength="60"></label>
+          <label>Secondary button route<input name="secondaryButtonHref" [(ngModel)]="site.homepage.secondaryButtonHref" maxlength="500" placeholder="/products?category=women"></label>
+          <label class="field-span-2">Hero description<textarea name="heroDescription" [(ngModel)]="site.homepage.heroDescription" rows="3" maxlength="500"></textarea></label>
+          <label>Featured eyebrow<input name="featuredEyebrow" [(ngModel)]="site.homepage.featuredEyebrow" maxlength="80"></label>
+          <label>Featured products heading<input name="featuredTitle" [(ngModel)]="site.homepage.featuredTitle" maxlength="100"></label>
+          <label class="field-span-2">Featured products description<textarea name="featuredDescription" [(ngModel)]="site.homepage.featuredDescription" rows="2" maxlength="300"></textarea></label>
+          <label>Closing eyebrow<input name="closingEyebrow" [(ngModel)]="site.homepage.closingEyebrow" maxlength="80"></label>
+          <label>Closing heading<input name="closingTitle" [(ngModel)]="site.homepage.closingTitle" maxlength="100"></label>
+          <label>Closing button text<input name="closingButtonText" [(ngModel)]="site.homepage.closingButtonText" maxlength="60"></label>
+          <label>Closing description<input name="closingDescription" [(ngModel)]="site.homepage.closingDescription" maxlength="300"></label>
+        </div>
+        <div class="visibility-grid">
+          <label class="toggle-field"><input type="checkbox" name="showTrustStrip" [(ngModel)]="site.homepage.showTrustStrip"> Show benefits strip</label>
+          <label class="toggle-field"><input type="checkbox" name="showCategories" [(ngModel)]="site.homepage.showCategories"> Show category section</label>
+          <label class="toggle-field"><input type="checkbox" name="showProductGrid" [(ngModel)]="site.homepage.showProductGrid"> Show featured products</label>
+          <label class="toggle-field"><input type="checkbox" name="showClosingBanner" [(ngModel)]="site.homepage.showClosingBanner"> Show closing banner</label>
+        </div>
+        <div class="subsection-heading"><div><h3>Store benefits</h3><p>Update the short trust messages on the homepage.</p></div><button type="button" class="button-small-outline" (click)="addTrustItem()" [disabled]="site.homepage.trustItems.length >= 6">+ Add benefit</button></div>
+        @for (item of site.homepage.trustItems; track trackTrust($index, item); let i = $index) {
+          <div class="repeat-row trust-row"><label>Title<input [name]="'trust-title-' + i" [(ngModel)]="item.title" maxlength="90"></label><label>Description<input [name]="'trust-description-' + i" [(ngModel)]="item.description" maxlength="180"></label><button type="button" class="icon-remove" (click)="removeTrustItem(i)" aria-label="Remove homepage benefit">×</button></div>
+        }
+        <div class="subsection-heading"><div><h3>Additional homepage sections</h3><p>Each enabled section appears below the catalogue. The content is plain text; arbitrary HTML is not accepted.</p></div><button type="button" class="button-small-outline" (click)="addHomepageSection()" [disabled]="site.homepage.sections.length >= 12">+ Add section</button></div>
+        @for (section of site.homepage.sections; track trackSection($index, section); let i = $index) {
+          <div class="nested-card">
+            <div class="nested-heading"><h3>Section {{ i + 1 }}</h3><div class="inline-actions"><button type="button" class="button-tiny" (click)="moveHomepageSection(i, -1)" [disabled]="i === 0" aria-label="Move section up">↑</button><button type="button" class="button-tiny" (click)="moveHomepageSection(i, 1)" [disabled]="i === site.homepage.sections.length - 1" aria-label="Move section down">↓</button><button type="button" class="text-danger" (click)="removeHomepageSection(i)">Remove</button></div></div>
+            <div class="field-grid">
+              <label>Section type<select [name]="'section-type-' + i" [(ngModel)]="section.type"><option value="text">Text</option><option value="promo">Promotion</option><option value="image-promo">Image promotion</option></select></label>
+              <label>Eyebrow<input [name]="'section-eyebrow-' + i" [(ngModel)]="section.eyebrow" maxlength="80"></label>
+              <label>Title<input [name]="'section-title-' + i" [(ngModel)]="section.title" maxlength="140" required></label>
+              <label>Image URL<input [name]="'section-image-' + i" [(ngModel)]="section.imageUrl" maxlength="1000" placeholder="HTTPS URL or /assets/…"></label>
+              <label class="field-span-2">Description<textarea [name]="'section-description-' + i" [(ngModel)]="section.description" rows="2" maxlength="1000"></textarea></label>
+              <label>Button text<input [name]="'section-button-text-' + i" [(ngModel)]="section.buttonText" maxlength="60"></label>
+              <label>Button route<input [name]="'section-button-href-' + i" [(ngModel)]="section.buttonHref" maxlength="500" placeholder="/products"></label>
+              <label>Display order<input type="number" [name]="'section-order-' + i" [(ngModel)]="section.order" min="0" max="10000"></label>
+              <label class="toggle-field"><input type="checkbox" [name]="'section-enabled-' + i" [(ngModel)]="section.enabled"> Published</label>
+            </div>
+          </div>
+        }
+      </section>
+
+      <div class="save-bar"><span>Changes are saved to the database; no rebuild is needed.</span><button class="button-primary" type="submit" [disabled]="saving || loading">{{ saving ? 'Saving…' : 'Save site content' }}</button></div>
+    </form>
+
+    <section class="editor-card page-manager">
+      <div class="card-heading"><div><span class="card-step">05</span><div><h2>Content pages</h2><p>Create public pages or keep drafts private. Page body is plain text for safety.</p></div></div></div>
+      @if (pageMessage) { <div class="notice notice-success" role="status">{{ pageMessage }}</div> }
+      @if (pageError) { <div class="notice notice-error" role="alert">{{ pageError }}</div> }
+      <form class="page-form" (ngSubmit)="savePage()">
+        <div class="subsection-heading"><div><h3>{{ editingPageId ? 'Edit page' : 'Create a page' }}</h3><p>Example routes: <code>/pages/about-us</code> or <code>/pages/shipping-information</code>.</p></div></div>
+        <div class="field-grid">
+          <label>Page title<input name="pageTitle" [(ngModel)]="pageDraft.title" maxlength="120" required></label>
+          <label>Slug<input name="pageSlug" [(ngModel)]="pageDraft.slug" maxlength="120" placeholder="about-us" required></label>
+          <label>SEO title<input name="pageSeoTitle" [(ngModel)]="pageDraft.seoTitle" maxlength="160"></label>
+          <label>SEO description<input name="pageSeoDescription" [(ngModel)]="pageDraft.seoDescription" maxlength="320"></label>
+          <label>Status<select name="pageStatus" [(ngModel)]="pageDraft.status"><option value="draft">Draft</option><option value="published">Published</option><option value="archived">Archived</option></select></label>
+          <label class="field-span-2">Page body<textarea name="pageBody" [(ngModel)]="pageDraft.body" rows="7" maxlength="50000" placeholder="Write plain-text content. Separate paragraphs with a blank line."></textarea></label>
+        </div>
+        <div class="inline-actions"><button type="submit" class="button-primary" [disabled]="pageSaving">{{ pageSaving ? 'Saving…' : (editingPageId ? 'Update page' : 'Create page') }}</button>@if (editingPageId) { <button type="button" class="button-outline" (click)="resetPageForm()">Cancel editing</button> }</div>
+      </form>
+      <div class="pages-list">
+        @for (page of pages; track trackPage($index, page)) {
+          <article class="page-row"><div class="page-copy"><strong>{{ page.title }}</strong><span>/pages/{{ page.slug }}</span><small>{{ page.seoTitle || 'No SEO title' }} · Updated {{ page.updatedAt ? (page.updatedAt | date) : 'not yet published' }}</small></div><span class="status-badge" [class.status-published]="page.status === 'published'" [class.status-archived]="page.status === 'archived'">{{ page.status }}</span><div class="inline-actions"><button type="button" class="button-tiny" (click)="editPage(page)">Edit</button>@if (page.status !== 'published') { <button type="button" class="button-tiny" (click)="setPageStatus(page, 'published')">Publish</button> } @if (page.status === 'published') { <button type="button" class="button-tiny" (click)="setPageStatus(page, 'draft')">Unpublish</button> } @if (page.status !== 'archived') { <button type="button" class="button-tiny button-tiny-danger" (click)="setPageStatus(page, 'archived')">Archive</button> } @if (page.status === 'archived') { <button type="button" class="button-tiny" (click)="setPageStatus(page, 'draft')">Restore as draft</button> }</div></article>
+        } @empty { <p class="empty-copy">No content pages yet.</p> }
+      </div>
+    </section>
+  }
+</section>

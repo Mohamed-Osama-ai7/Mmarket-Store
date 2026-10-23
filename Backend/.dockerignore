@@ -1,0 +1,12 @@
+node_modules
+.env
+logs/*
+!logs/.gitkeep
+backups/*
+!backups/.gitkeep
+uploads/*
+!uploads/.gitkeep
+*.log
+coverage
+# Test suites are kept in Git and run in CI, but are not needed in the runtime image.
+tests

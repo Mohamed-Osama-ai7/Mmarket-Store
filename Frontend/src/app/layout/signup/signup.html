@@ -1,0 +1,13 @@
+<section class="auth-page"><div class="container auth-grid"><div class="auth-story"><span class="eyebrow">A FRESH START</span><h1>Find things you'll reach for every day.</h1><p>Sign up to keep your orders together and make future visits a little easier.</p><div class="signup-points"><span>01 <strong>Save the favourites</strong></span><span>02 <strong>Track every order</strong></span><span>03 <strong>Check out with ease</strong></span></div></div><div class="auth-card"><span class="eyebrow">JOIN THE STORE</span><h2>Sign up for your account</h2><p class="auth-intro">A few details and you're all set.</p>
+  @if (errorMessage) { <div class="alert alert-warning" role="alert">{{ errorMessage }}</div> } @if (successMessage) { <div class="alert alert-success" role="status">{{ successMessage }}</div> }
+  <form [formGroup]="signupForm" (ngSubmit)="submit()" novalidate>
+    <label class="field-label" for="name">Full name</label><input id="name" formControlName="name" type="text" class="form-control store-input" autocomplete="name" maxlength="100" required>
+    @if (fields.name.touched && fields.name.invalid) { <small class="field-error">Enter a name between 2 and 100 characters.</small> }
+    <label class="field-label mt-3" for="email">Email address</label><input id="email" formControlName="email" type="email" class="form-control store-input" autocomplete="email" maxlength="254" required>
+    @if (fields.email.touched && fields.email.invalid) { <small class="field-error">Enter a valid email address.</small> }
+    <label class="field-label mt-3" for="password">Password</label><input id="password" formControlName="password" type="password" class="form-control store-input" autocomplete="new-password" required>
+    @if (fields.password.touched && fields.password.errors?.['minlength']) { <small class="field-error">Use at least 8 characters.</small> } @if (fields.password.touched && fields.password.errors?.['passwordBytes']) { <small class="field-error">The password must not exceed 72 UTF-8 bytes.</small> }
+    <label class="field-label mt-3" for="confirmPassword">Confirm password</label><input id="confirmPassword" formControlName="confirmPassword" type="password" class="form-control store-input" autocomplete="new-password" required>
+    @if (fields.confirmPassword.touched && signupForm.errors?.['passwordMismatch']) { <small class="field-error">The passwords do not match.</small> }
+    <button class="button-solid w-100 mt-4" type="submit" [disabled]="busy">{{ busy ? 'Signing you up…' : 'Sign up' }}</button>
+  </form><p class="auth-switch">Already have an account? <a routerLink="/login">Sign in</a></p></div></div></section>

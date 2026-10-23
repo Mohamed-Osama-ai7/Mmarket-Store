@@ -1,0 +1,104 @@
+﻿<div class="admin-page-heading">
+  <div>
+    <span class="admin-eyebrow">USER DIRECTORY & ROLES</span>
+    <h1>Customer & User Accounts</h1>
+    <p>Manage customer profiles, administrative roles, and account statuses with strict privacy protection.</p>
+  </div>
+  <button type="button" class="admin-outline-button" (click)="loadUsers()">Refresh accounts</button>
+</div>
+
+@if (errorMessage) { <div class="alert alert-danger">{{ errorMessage }}</div> }
+@if (successMessage) { <div class="alert alert-success">{{ successMessage }}</div> }
+
+<div class="admin-kpi-grid">
+  <article class="admin-kpi">
+    <div class="kpi-head"><span>Total users</span><span class="kpi-icon">👥</span></div>
+    <strong>{{ users.length }}</strong>
+    <small>Registered accounts in database</small>
+  </article>
+  <article class="admin-kpi">
+    <div class="kpi-head"><span>Customers</span><span class="kpi-icon blue">🛍️</span></div>
+    <strong>{{ totalCustomers }}</strong>
+    <small>Storefront customer accounts</small>
+  </article>
+  <article class="admin-kpi">
+    <div class="kpi-head"><span>Administrators</span><span class="kpi-icon gold">🛡️</span></div>
+    <strong>{{ totalAdmins }}</strong>
+    <small>Authorized store managers</small>
+  </article>
+</div>
+
+<div class="admin-filter-bar">
+  <input type="search" class="form-control" placeholder="Search by name, email, or phone..." [(ngModel)]="searchText" />
+  <select class="form-select" [(ngModel)]="roleFilter">
+    <option value="all">All roles</option>
+    <option value="user">Customers only</option>
+    <option value="admin">Administrators only</option>
+  </select>
+  <select class="form-select" [(ngModel)]="statusFilter">
+    <option value="all">All statuses</option>
+    <option value="active">Active only</option>
+    <option value="inactive">Deactivated only</option>
+  </select>
+</div>
+
+<section class="admin-panel">
+  @if (loading) {
+    <div class="admin-loading">Loading registered accounts...</div>
+  } @else if (filteredUsers.length) {
+    <div class="admin-table-wrap">
+      <table class="table admin-table">
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Role</th>
+            <th>Contact</th>
+            <th>Registered</th>
+            <th>Status</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (user of filteredUsers; track user._id) {
+            <tr>
+              <td>
+                <strong>{{ user.name }}</strong>
+                <div class="text-muted small">{{ user.email }}</div>
+              </td>
+              <td>
+                <span class="badge" [class.badge-admin]="user.role === 'admin'" [class.badge-user]="user.role === 'user'">
+                  {{ user.role === 'admin' ? 'Administrator' : 'Customer' }}
+                </span>
+              </td>
+              <td>
+                <div>{{ user.phone || '—' }}</div>
+                @if (user.address) { <small class="text-muted">{{ user.address }}</small> }
+              </td>
+              <td>{{ user.createdAt ? (user.createdAt | date:'mediumDate') : '—' }}</td>
+              <td>
+                <span class="status-pill" [class.status-active]="user.isActive !== false" [class.status-inactive]="user.isActive === false">
+                  {{ user.isActive !== false ? 'Active' : 'Deactivated' }}
+                </span>
+              </td>
+              <td class="text-end">
+                @if (isSelf(user)) {
+                  <span class="text-muted small">Current account</span>
+                } @else {
+                  <button type="button" class="btn btn-sm"
+                          [class.btn-outline-danger]="user.isActive !== false"
+                          [class.btn-outline-success]="user.isActive === false"
+                          [disabled]="busyId === user._id"
+                          (click)="toggleStatus(user)">
+                    {{ user.isActive !== false ? 'Deactivate' : 'Activate' }}
+                  </button>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  } @else {
+    <div class="admin-empty">No accounts match your filter criteria.</div>
+  }
+</section>

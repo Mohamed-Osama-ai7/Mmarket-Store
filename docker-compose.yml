@@ -1,0 +1,109 @@
+name: ecommerce
+services:
+  mongo:
+    image: mongo:7.0
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
+    restart: unless-stopped
+    networks:
+      - data-net
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand({ping:1}).ok"]
+      interval: 5s
+      timeout: 4s
+      retries: 20
+
+  mongo-init:
+    image: mongo:7.0
+    depends_on:
+      mongo:
+        condition: service_healthy
+    networks:
+      - data-net
+    restart: "no"
+    entrypoint: ["/bin/sh", "-c"]
+    command: >-
+      until mongosh "mongodb://mongo:27017/admin" --quiet --eval "db.adminCommand({ping:1}).ok" >/dev/null 2>&1; do sleep 2; done;
+      mongosh "mongodb://mongo:27017/admin" --quiet --eval "try { rs.status().ok } catch (e) { rs.initiate({_id:'rs0',members:[{_id:0,host:'mongo:27017'}]}); }";
+      until mongosh "mongodb://mongo:27017/admin?replicaSet=rs0" --quiet --eval "rs.status().ok" >/dev/null 2>&1; do sleep 2; done;
+
+  backend:
+    build:
+      context: ./Backend
+    restart: unless-stopped
+    networks:
+      - app-net
+      - data-net
+    environment:
+      PORT: 3000
+      NODE_ENV: production
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in root .env}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-1d}
+      DUMMY_PASSWORD_HASH: ${DUMMY_PASSWORD_HASH:?Set DUMMY_PASSWORD_HASH in root .env}
+      PAYMENT_PROVIDER: manual
+      TRUST_PROXY: "true"
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      MAIL_FROM: ${MAIL_FROM:-}
+      RESET_EMAIL_MODE: disabled
+      FASHN_API_KEY: ${FASHN_API_KEY:-}
+      MONGO_URI: mongodb://mongo:27017/mean-l2?replicaSet=rs0
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:8080,http://localhost:4200}
+      PUBLIC_SITE_URL: ${PUBLIC_SITE_URL:-http://localhost:8080}
+      APP_URL: ${APP_URL:-http://localhost:8080}
+      CACHE_STORE: mongo
+      SHARED_RATE_LIMIT_STORE: mongo
+    depends_on:
+      mongo-init:
+        condition: service_completed_successfully
+    volumes:
+      - product_uploads:/app/uploads
+      - backend_logs:/app/logs
+      - backend_backups:/app/backups
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/health/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 4s
+      retries: 5
+      start_period: 25s
+
+  catalog-seed:
+    build:
+      context: ./Backend
+    command: ["node", "scripts/seed-catalog.js"]
+    restart: "no"
+    networks:
+      - data-net
+    environment:
+      NODE_ENV: production
+      MONGO_URI: mongodb://mongo:27017/mean-l2?replicaSet=rs0
+      CACHE_STORE: mongo
+      SHARED_RATE_LIMIT_STORE: mongo
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./Frontend
+    restart: unless-stopped
+    networks:
+      - app-net
+    depends_on:
+      backend:
+        condition: service_healthy
+      catalog-seed:
+        condition: service_completed_successfully
+    ports:
+      - "8080:80"
+
+networks:
+  app-net:
+  data-net:
+    internal: true
+
+volumes:
+  mongo_data:
+  product_uploads:
+  backend_logs:
+  backend_backups:

@@ -1,0 +1,103 @@
+<section class="hero-section fashion-hero">
+  <div class="container hero-grid">
+    <div class="hero-copy">
+      <span class="eyebrow"><span class="eyebrow-dot"></span> {{ siteContent?.homepage?.heroEyebrow || 'THE EVERYDAY WARDROBE' }}</span>
+      <h1>{{ siteContent?.homepage?.heroTitle || 'Good style.' }}<br><em>{{ siteContent?.homepage?.heroEmphasis || 'Feels like you.' }}</em></h1>
+      <p class="hero-description">{{ siteContent?.homepage?.heroDescription || 'Easy-to-wear pieces, considered details, and everyday favourites that make getting dressed feel simple.' }}</p>
+      <div class="hero-actions">
+        <a class="button-solid" [routerLink]="siteContent?.homepage?.primaryButtonHref || '/products'">{{ siteContent?.homepage?.primaryButtonText || 'Shop the collection' }} <span aria-hidden="true">↗</span></a>
+        <a class="text-link" [routerLink]="siteContent?.homepage?.secondaryButtonHref || '/products?category=women'">{{ siteContent?.homepage?.secondaryButtonText || 'Explore womenswear' }}</a>
+      </div>
+      <div class="hero-notes">
+        <span><span class="hero-note-check" aria-hidden="true">✓</span> Easy everyday fits</span>
+        <span><span class="hero-note-cod" aria-hidden="true">COD</span> Pay on delivery</span>
+        <span><span class="hero-note-spark" aria-hidden="true">✳</span> Virtual try-on</span>
+      </div>
+    </div>
+
+    <div class="hero-art" aria-label="Featured clothing from the store catalogue">
+      @if (featuredProduct) {
+        <a class="fashion-hero-photo" [routerLink]="['/products', featuredProduct.slug]" [attr.aria-label]="'View ' + featuredProduct.name">
+          <img class="fashion-hero-image" [src]="featuredImage" [alt]="featuredProduct.name" fetchpriority="high" loading="eager" (error)="onProductImageError($event)">
+          <span class="hero-photo-shade"></span>
+          <span class="hero-photo-top"><span>THE NEW EDIT</span><span>01 / 08</span></span>
+          <span class="hero-photo-caption">
+            <span><small>FEATURED PIECE</small><strong>{{ featuredProduct.name }}</strong><small>{{ featuredProduct.brand || 'Everyday essentials' }}</small></span>
+            <span class="hero-photo-arrow" aria-hidden="true">↗</span>
+          </span>
+        </a>
+      } @else {
+        <div class="fashion-hero-placeholder">
+          <span class="placeholder-mark">M.</span>
+          <span class="placeholder-caption">THE EVERYDAY EDIT</span>
+          <img src="/product-placeholder.svg" alt="" (error)="onProductImageError($event)">
+        </div>
+      }
+      <div class="floating-note"><span class="note-check" aria-hidden="true">✓</span><span><strong>Made for your everyday</strong><small>Clothing, shoes & accessories</small></span></div>
+      <div class="hero-index">NEW SEASON <span>—</span> EVERYDAY STYLE</div>
+    </div>
+  </div>
+</section>
+
+@if (siteContent?.homepage?.showTrustStrip !== false) {
+<section class="trust-strip" aria-label="Store benefits">
+  <div class="container trust-grid">
+    <div><span class="trust-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg></span><span><strong>{{ trustTitle(0, 'Easy everyday style') }}</strong><small>{{ trustDescription(0, 'Pieces you can wear your way') }}</small></span></div>
+    <div><span class="trust-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 8h14l-1 13H6L5 8Zm4 0V6a3 3 0 0 1 6 0v2"/></svg></span><span><strong>{{ trustTitle(1, 'Simple checkout') }}</strong><small>{{ trustDescription(1, 'No online payment required') }}</small></span></div>
+    <div><span class="trust-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg></span><span><strong>{{ trustTitle(2, 'Order updates') }}</strong><small>{{ trustDescription(2, 'Keep up with your order') }}</small></span></div>
+    <div><span class="trust-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3 20 6v5c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6l8-3Z"/><path d="m8.5 12 2.2 2.2 4.8-4.8"/></svg></span><span><strong>{{ trustTitle(3, 'Find your fit') }}</strong><small>{{ trustDescription(3, 'Explore size and colour options') }}</small></span></div>
+  </div>
+</section>
+}
+
+@if (siteContent?.homepage?.showCategories !== false) {
+<section class="section-block container" id="categories">
+  <div class="section-heading"><div><span class="eyebrow">FIND YOUR FIT</span><h2>Shop the edit</h2><p>Start with a collection, then make it your own.</p></div><a class="text-link" routerLink="/products">View all categories ↗</a></div>
+  @if (categories.length) {
+    <div class="category-grid">
+      @for (category of categories.slice(0, 4); track category._id; let index = $index) {
+        <a [class]="'category-tile category-tone-' + (index + 1)" routerLink="/products" [queryParams]="{category: category.slug}">
+          <img class="category-photo" [src]="categoryImage(category)" [alt]="''" loading="lazy" (error)="onProductImageError($event)">
+          <span class="category-photo-shade"></span>
+          <span class="category-number">0{{ index + 1 }} / COLLECTION</span>
+          <span class="category-label">{{ category.name }} <span aria-hidden="true">↗</span></span>
+        </a>
+      }
+    </div>
+  } @else {
+    <div class="empty-state compact"><strong>Collections are getting ready.</strong><span>Categories will appear as soon as the catalogue is available.</span></div>
+  }
+</section>
+}
+
+@if (siteContent?.homepage?.showProductGrid !== false) {
+<section class="section-block products-section">
+  <div class="container">
+    <div class="section-heading"><div><span class="eyebrow">{{ siteContent?.homepage?.featuredEyebrow || 'STRAIGHT FROM OUR CATALOGUE' }}</span><h2>{{ siteContent?.homepage?.featuredTitle || 'The latest edit' }}</h2><p>{{ siteContent?.homepage?.featuredDescription || 'Browse the pieces currently available in the store.' }}</p></div><a class="text-link" routerLink="/products">Shop all products ↗</a></div>
+    @if (cartMessage) { <div class="alert alert-success" role="status">{{ cartMessage }}</div> }
+    @if (cartError) { <div class="alert alert-warning" role="alert">{{ cartError }}</div> }
+    @if (loading) { <div class="loading-state" role="status"><span class="loading-pulse" aria-hidden="true"></span>Loading the store catalogue…</div> }
+    @if (errorMessage) { <div class="alert alert-warning" role="alert">{{ errorMessage }} <button class="text-button" type="button" (click)="retryCatalogue()">Try again</button></div> }
+    @if (!loading && products.length) { <div class="product-grid">@for (product of products; track product._id) { <app-product [myProduct]="product" (quickAdd)="quickAdd($event)" /> }</div> }
+    @if (!loading && !products.length && !errorMessage) { <div class="empty-state"><strong>The catalogue is empty.</strong><span>Start the Docker stack to seed the starter products into MongoDB, or add products from the admin dashboard.</span><a class="button-solid" routerLink="/products">Browse the collection</a></div> }
+  </div>
+</section>
+}
+
+@if (siteContent?.homepage?.sections?.length) {
+  @for (section of siteContent?.homepage?.sections || []; track section._id || section.title) {
+    <section class="container cms-home-section" [class.cms-home-section-image]="section.type === 'image-promo'">
+      @if (section.imageUrl && section.type === 'image-promo') { <img class="cms-section-image" [src]="section.imageUrl" [alt]="section.title" loading="lazy"> }
+      <div class="cms-section-copy">
+        @if (section.eyebrow) { <span class="eyebrow">{{ section.eyebrow }}</span> }
+        <h2>{{ section.title }}</h2>
+        @if (section.description) { <p>{{ section.description }}</p> }
+        @if (section.buttonText) { <a class="text-link" [routerLink]="section.buttonHref || '/products'">{{ section.buttonText }} ↗</a> }
+      </div>
+    </section>
+  }
+}
+
+@if (siteContent?.homepage?.showClosingBanner !== false) {
+<section class="closing-banner container"><div><span class="eyebrow">{{ siteContent?.homepage?.closingEyebrow || 'YOUR NEXT FAVOURITE AWAITS' }}</span><h2>{{ siteContent?.homepage?.closingTitle || 'Wear it your way.' }}</h2><p>{{ siteContent?.homepage?.closingDescription || 'Discover pieces made for your everyday.' }}</p></div><a routerLink="/products" class="button-light">{{ siteContent?.homepage?.closingButtonText || 'Start exploring' }} ↗</a><div class="closing-decoration" aria-hidden="true">M</div></section>
+}

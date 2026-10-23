@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="660" viewBox="0 0 600 660" role="img" aria-labelledby="title desc">
+  <title id="title">Mmarket product placeholder</title>
+  <desc id="desc">A warm ivory and burgundy illustration used when a product photo is unavailable.</desc>
+  <rect width="600" height="660" fill="#f7f5f1"/>
+  <circle cx="430" cy="160" r="90" fill="#ead9dd"/>
+  <path d="M125 560V255c0-100 78-180 175-180s175 80 175 180v305" fill="#d9c2c8"/>
+  <path d="M205 560V310c0-58 42-105 95-105s95 47 95 105v250" fill="#b88b96"/>
+  <text x="300" y="610" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" letter-spacing="4" fill="#782b3a">MMARKET</text>
+</svg>

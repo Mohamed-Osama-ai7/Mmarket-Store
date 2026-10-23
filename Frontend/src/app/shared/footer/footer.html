@@ -1,0 +1,21 @@
+<footer class="site-footer">
+  <div class="container footer-top">
+    <div>
+      <a class="footer-brand" routerLink="/home">{{ siteContent?.brand?.storeName || 'Mmarket' }}<span>.</span></a>
+      <p>{{ siteContent?.footer?.description || siteContent?.brand?.tagline || 'Everyday fashion, thoughtfully selected for your wardrobe.' }}</p>
+      @if (siteContent?.brand?.contactEmail) { <a class="footer-contact" [href]="'mailto:' + siteContent?.brand?.contactEmail">{{ siteContent?.brand?.contactEmail }}</a> }
+      @if (siteContent?.brand?.contactPhone) { <a class="footer-contact" [href]="'tel:' + siteContent?.brand?.contactPhone">{{ siteContent?.brand?.contactPhone }}</a> }
+    </div>
+    @if (siteContent?.footer?.linkGroups?.length) {
+      @for (group of siteContent?.footer?.linkGroups || []; track group._id || group.heading) {
+        <div class="footer-link-group"><h2>{{ group.heading }}</h2><nav class="footer-links">@for (link of group.links; track link._id || link.href) { @if (link.enabled) { <a [routerLink]="link.href">{{ link.label }}</a> } }</nav></div>
+      }
+    } @else if (!siteContent || siteContent.footer?.useDefaultLinks !== false) {
+      <nav class="footer-links" aria-label="Store links"><a routerLink="/products">Shop all</a><a routerLink="/orders">Order history</a><a routerLink="/refunds">Refund requests</a><a routerLink="/policies/privacy">Privacy</a><a routerLink="/policies/terms">Terms</a><a routerLink="/policies/returns">Returns policy</a><a routerLink="/contact">Contact</a></nav>
+    }
+  </div>
+  @if (siteContent?.footer?.socialLinks?.length) {
+    <div class="container footer-social">@for (social of siteContent?.footer?.socialLinks || []; track social._id || social.url) { @if (social.enabled) { <a [href]="social.url" target="_blank" rel="noopener noreferrer">{{ social.label }} ↗</a> } }</div>
+  }
+  <div class="container footer-bottom"><span>© {{ year }} {{ siteContent?.brand?.storeName || 'Mmarket' }} Store</span><span>Secure checkout · Cash on delivery</span></div>
+</footer>

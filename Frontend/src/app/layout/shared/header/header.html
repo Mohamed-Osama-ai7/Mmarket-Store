@@ -1,0 +1,48 @@
+@if (siteContent?.announcement?.enabled && siteContent?.announcement?.text) {
+  <div class="announcement-bar"><span>{{ siteContent?.announcement?.text }}</span>@if (siteContent?.announcement?.buttonText) { <a [routerLink]="siteContent?.announcement?.href || '/products'">{{ siteContent?.announcement?.buttonText }} ↗</a> }</div>
+}
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="brand" routerLink="/home" (click)="closeMenu()" aria-label="Store home">
+      @if (siteContent?.brand?.logoUrl) { <img class="brand-image" [src]="siteContent?.brand?.logoUrl" [alt]="siteContent?.brand?.storeName || 'Mmarket'"> } @else { <span class="brand-mark">M</span> }<span>{{ siteContent?.brand?.storeName || 'Mmarket' }}<span class="brand-dot">.</span></span>
+    </a>
+    <button class="menu-toggle" type="button" (click)="menuOpen = !menuOpen" [attr.aria-expanded]="menuOpen" aria-label="Toggle navigation">☰</button>
+    <nav class="main-nav" [class.is-open]="menuOpen">
+      @for (item of navigationItems; track item._id || item.href) {
+        <a [routerLink]="item.href" routerLinkActive="active" (click)="closeMenu()">{{ item.label }}</a>
+      }
+      @if (currentUser$ | async; as user) {
+        <a routerLink="/orders" routerLinkActive="active" (click)="closeMenu()">My orders</a>
+        <a routerLink="/refunds" routerLinkActive="active" (click)="closeMenu()">Returns</a>
+      }
+    </nav>
+    <div class="header-actions">
+      <button class="theme-toggle" type="button" (click)="theme.toggle()" [attr.aria-label]="theme.isDark ? 'Switch to light mode' : 'Switch to dark mode'" [attr.title]="theme.isDark ? 'Light mode' : 'Dark mode'">{{ theme.isDark ? '☀' : '☾' }}<span class="theme-toggle-label">{{ theme.isDark ? 'Light' : 'Dark' }}</span></button>
+      <a class="icon-link" routerLink="/wishlist" aria-label="Wishlist" title="Wishlist"><span class="bag-icon">♡</span><span class="action-label">Saved</span></a>
+      <a class="icon-link cart-link" routerLink="/cart" aria-label="Shopping cart" title="Shopping cart"><span class="bag-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 8h14l-1 13H6L5 8Zm4 0V6a3 3 0 0 1 6 0v2"/></svg></span><span class="action-label">Cart</span>@if (cartCount() > 0) { <span class="cart-count">{{ cartCount() }}</span> }</a>
+      @if (currentUser$ | async; as user) {
+        <div class="notification-area">
+          <button class="notification-toggle" type="button" (click)="toggleNotifications()" [attr.aria-expanded]="notificationsOpen" aria-label="Notifications"><svg class="notification-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg> @if (unreadCount$ | async; as unreadCount) { @if (unreadCount > 0) { <span class="notification-count">{{ unreadCount > 9 ? '9+' : unreadCount }}</span> } }</button>
+          @if (notificationsOpen) {
+            <div class="notification-popover"><div class="notification-popover-head"><strong>Notifications</strong><button type="button" (click)="markAllRead()">Mark all read</button></div>
+              @if (notificationLoading) { <p class="notification-empty" role="status">Loading notifications…</p> }
+              @if (notificationError) { <p class="notification-empty" role="alert">{{ notificationError }} <button type="button" (click)="refreshNotifications()" [disabled]="notificationLoading">Retry</button></p> }
+              @if (!notificationLoading && !notificationError) {
+                @if (notifications$ | async; as notifications) {
+                  @if (notifications.length) { <div class="notification-list">@for (notification of notifications; track notification._id) { <button type="button" class="notification-item" [class.is-unread]="!notification.readAt" (click)="openNotification(notification)"><span class="notification-dot"></span><span class="notification-copy"><strong>{{ notification.title }}</strong><span>{{ notification.message }}</span><small>{{ notification.createdAt | date:'medium' }}</small></span></button> } </div> }
+                  @else { <p class="notification-empty">You're all caught up.</p> }
+                }
+              }
+            </div>
+          }
+        </div>
+        @if (user.role === 'admin') { <a class="dashboard-link" routerLink="/dashboard/home">Dashboard</a> }
+        <a class="account-link" routerLink="/profile">{{ user.name }}</a>
+        <button class="button-quiet" type="button" (click)="logout()">Sign out</button>
+      } @else {
+        <a class="button-quiet" routerLink="/login">Sign in</a>
+        <a class="button-solid button-small" routerLink="/signup">Sign up</a>
+      }
+    </div>
+  </div>
+</header>

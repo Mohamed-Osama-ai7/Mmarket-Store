@@ -1,0 +1,28 @@
+# Environment files and local secrets
+.env
+.env.*
+!.env.example
+*.env
+
+# Installed dependencies
+node_modules/
+
+# Logs and generated runtime files
+logs/*
+!logs/.gitkeep
+*.log
+*.tmp
+*.temp
+
+# Local backups and test uploads
+backups/*
+!backups/.gitkeep
+uploads/*
+!uploads/.gitkeep
+
+# Operating system and editor files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~

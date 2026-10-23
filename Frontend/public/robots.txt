@@ -1,0 +1,10 @@
+# Static robots.txt for the Vercel storefront (a static file wins over the SPA rewrite).
+# After the production domain is known, add: Sitemap: https://<your-domain>/sitemap.xml
+# The backend generates the product sitemap at /sitemap.xml from PUBLIC_SITE_URL.
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /orders
+Disallow: /cart
+Disallow: /checkout

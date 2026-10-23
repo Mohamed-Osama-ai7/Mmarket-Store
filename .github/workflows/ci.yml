@@ -1,0 +1,66 @@
+name: Store CI
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  structure:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.15.0
+      - run: node scripts/check-project-structure.js
+
+  backend:
+    runs-on: ubuntu-latest
+    needs: structure
+    defaults:
+      run:
+        working-directory: Backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.15.0
+          cache: npm
+          cache-dependency-path: Backend/package-lock.json
+      - run: npm ci
+      - run: npm run check:syntax
+      - run: npm test
+      - run: npm audit --audit-level=high
+
+  frontend:
+    runs-on: ubuntu-latest
+    needs: structure
+    defaults:
+      run:
+        working-directory: Frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.15.0
+          cache: npm
+          cache-dependency-path: Frontend/package-lock.json
+      - run: npm ci
+      - run: npm run build
+      - run: npm test
+      - run: npm audit --audit-level=high
+
+  docker:
+    runs-on: ubuntu-latest
+    needs: [backend, frontend]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Docker Compose configuration
+        env:
+          # Non-production values are sufficient for config validation only.
+          JWT_SECRET: ci-only-placeholder-secret-not-for-deployment
+          DUMMY_PASSWORD_HASH: '$2b$12$HrcL.PN5mx6kmCl22zS71eodMVI2A3iYLafBfkmFC0rBgFIgs/fgy'
+        run: docker compose config --quiet
+      - run: docker build -t ecommerce-backend ./Backend
+      - run: docker build -t ecommerce-frontend ./Frontend

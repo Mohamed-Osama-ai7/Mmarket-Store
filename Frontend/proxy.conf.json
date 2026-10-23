@@ -1,0 +1,15 @@
+{
+  "/api": {
+    "target": "http://127.0.0.1:3000",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "warn"
+  },
+  "/socket.io": {
+    "target": "http://127.0.0.1:3000",
+    "secure": false,
+    "changeOrigin": true,
+    "ws": true,
+    "logLevel": "warn"
+  }
+}

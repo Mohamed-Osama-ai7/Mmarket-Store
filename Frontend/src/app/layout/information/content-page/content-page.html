@@ -1,0 +1,16 @@
+<section class="content-page-shell container">
+  @if (loading) { <div class="content-state" role="status">Loading page…</div> }
+  @if (!loading && errorMessage) { <div class="content-state content-state-error" role="alert"><h1>Page unavailable</h1><p>{{ errorMessage }}</p><a routerLink="/home">Return to the store</a></div> }
+  @if (!loading && page) {
+    <article class="published-page">
+      <a class="back-link" routerLink="/home">← Back to store</a>
+      <span class="page-eyebrow">MMARKET</span>
+      <h1>{{ page.title }}</h1>
+      @if (page.updatedAt) { <p class="page-updated">Last updated {{ page.updatedAt | date:'longDate' }}</p> }
+      <div class="page-body">
+        @for (paragraph of paragraphs; track $index) { <p>{{ paragraph }}</p> }
+      </div>
+      <a class="return-link" routerLink="/products">Explore the collection ↗</a>
+    </article>
+  }
+</section>

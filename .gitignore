@@ -1,0 +1,30 @@
+# Dependencies and build output
+**/node_modules/
+**/dist/
+**/.angular/
+**/out-tsc/
+*.tsbuildinfo
+
+# Local secrets
+.env
+.env.*
+**/.env
+**/.env.*
+!**/.env.example
+
+# Backend runtime data
+Backend/logs/*
+!Backend/logs/.gitkeep
+Backend/backups/*
+!Backend/backups/.gitkeep
+Backend/uploads/*
+!Backend/uploads/.gitkeep
+
+# Editor and operating-system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~

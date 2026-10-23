@@ -1,0 +1,57 @@
+@if (cmsPage) {
+  <section class="policy-hero">
+    <div class="container">
+      <span class="eyebrow">STORE INFORMATION</span>
+      <h1>{{ cmsPage.title }}</h1>
+    </div>
+  </section>
+  <section class="container policy-body">
+    <aside class="policy-nav">
+      <span class="eyebrow">STORE INFORMATION</span>
+      <a routerLink="/policies/privacy">Privacy notice</a>
+      <a routerLink="/policies/terms">Terms of use</a>
+      <a routerLink="/policies/returns">Returns &amp; refunds</a>
+      <a routerLink="/contact">Contact us ↗</a>
+    </aside>
+    <article class="policy-content">
+      @for (paragraph of cmsParagraphs; track $index) {
+        <p class="cms-policy-paragraph">{{ paragraph }}</p>
+      }
+      <div class="policy-disclaimer">Store information managed by an authorized administrator.</div>
+    </article>
+  </section>
+} @else if (content) {
+  <section class="policy-hero">
+    <div class="container">
+      <span class="eyebrow">{{ content.kicker }}</span>
+      <h1>{{ content.title }}</h1>
+      <p>{{ content.intro }}</p>
+    </div>
+  </section>
+  <section class="container policy-body">
+    <aside class="policy-nav">
+      <span class="eyebrow">STORE INFORMATION</span>
+      <a routerLink="/policies/privacy">Privacy notice</a>
+      <a routerLink="/policies/terms">Terms of use</a>
+      <a routerLink="/policies/returns">Returns &amp; refunds</a>
+      <a routerLink="/contact">Contact us ↗</a>
+    </aside>
+    <article class="policy-content">
+      @for (section of content.sections; track section.heading) {
+        <section>
+          <h2>{{ section.heading }}</h2>
+          @for (paragraph of section.paragraphs; track $index) {
+            <p>{{ paragraph }}</p>
+          }
+        </section>
+      }
+      <div class="policy-disclaimer">Educational project notice: review this content before any public or commercial use.</div>
+    </article>
+  </section>
+} @else {
+  <section class="container policy-not-found">
+    <h1>Page not found</h1>
+    <p>This information page is unavailable.</p>
+    <a class="button-solid" routerLink="/home">Return home</a>
+  </section>
+}

@@ -1,0 +1,25 @@
+# Angular build and local caches
+/.angular/
+/dist/
+/out-tsc/
+/node_modules/
+*.tsbuildinfo
+
+# Environment and local secrets
+.env
+.env.*
+!.env.example
+
+# Backend runtime data
+Backend/node_modules/
+Backend/logs/
+Backend/backups/*
+!Backend/backups/.gitkeep
+Backend/uploads/*
+!Backend/uploads/.gitkeep
+
+# Editor and operating-system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,65 @@
+<section class="page-heading shop-heading">
+  <div class="container">
+    <span class="eyebrow">THE MMARKET EDIT</span>
+    <h1>Find your <em>everyday favourite.</em></h1>
+    <p>Shop by fit, colour, brand, and the details that matter to you.</p>
+    <div class="breadcrumb-line"><a routerLink="/home">Home</a><span>/</span><span>Shop all</span></div>
+  </div>
+</section>
+
+<section class="container shop-layout section-block">
+  <button class="mobile-filter-toggle" type="button" (click)="filtersOpen = !filtersOpen" [attr.aria-expanded]="filtersOpen" aria-controls="product-filter-panel">
+    <span aria-hidden="true">☷</span> Filters & sort @if (filterCount) { <span class="filter-count">{{ filterCount }}</span> }
+  </button>
+
+  <aside id="product-filter-panel" class="filter-panel" [class.is-open]="filtersOpen" aria-label="Product filters">
+    <div class="filter-head"><div><span class="filter-kicker">MAKE IT YOURS</span><h2>Refine the edit</h2></div><button type="button" class="text-button" (click)="resetFilters()">Clear all</button></div>
+
+    <label class="field-label" for="productSearch">Search</label>
+    <input id="productSearch" class="form-control store-input" type="search" placeholder="Try linen, denim, a brand…" autocomplete="off" [(ngModel)]="searchText" (ngModelChange)="onSearchChange()">
+
+    <label class="field-label filter-spaced" for="productCategory">Collection</label>
+    <select id="productCategory" class="form-select store-input" [(ngModel)]="categorySlug" (ngModelChange)="onCategoryChange()"><option value="">All collections</option>@for (category of categories; track category._id) { <option [value]="category.slug">{{ category.name }}</option> }</select>
+
+    <div class="filter-group"><span class="field-label">Price range (EGP)</span><div class="price-fields"><div><label class="visually-hidden" for="minPrice">Minimum price</label><input id="minPrice" class="form-control store-input" type="number" min="0" step="1" placeholder="Min" [(ngModel)]="minPrice" (ngModelChange)="onSearchChange()"></div><div><label class="visually-hidden" for="maxPrice">Maximum price</label><input id="maxPrice" class="form-control store-input" type="number" min="0" step="1" placeholder="Max" [(ngModel)]="maxPrice" (ngModelChange)="onSearchChange()"></div></div></div>
+
+    <label class="field-label filter-spaced" for="productSize">Size</label>
+    <select id="productSize" class="form-select store-input" [(ngModel)]="size" (ngModelChange)="onFilterChange()"><option value="">Any size</option>@for (item of filterOptions.sizes; track item) { <option [value]="item">{{ item }}</option> }</select>
+
+    <label class="field-label filter-spaced" for="productColor">Colour</label>
+    <select id="productColor" class="form-select store-input" [(ngModel)]="color" (ngModelChange)="onFilterChange()"><option value="">Any colour</option>@for (item of filterOptions.colors; track item) { <option [value]="item">{{ item }}</option> }</select>
+
+    <label class="field-label filter-spaced" for="productBrand">Brand</label>
+    <select id="productBrand" class="form-select store-input" [(ngModel)]="brand" (ngModelChange)="onFilterChange()"><option value="">All brands</option>@for (item of filterOptions.brands; track item) { <option [value]="item">{{ item }}</option> }</select>
+
+    <label class="field-label filter-spaced" for="productRating">Customer rating</label>
+    <select id="productRating" class="form-select store-input" [(ngModel)]="minRating" (ngModelChange)="onFilterChange()"><option [ngValue]="null">Any rating</option><option [ngValue]="4">★ 4 stars & up</option><option [ngValue]="3">★ 3 stars & up</option><option [ngValue]="2">★ 2 stars & up</option><option [ngValue]="1">★ 1 star & up</option></select>
+
+    <label class="field-label filter-spaced" for="productSort">Sort by</label>
+    <select id="productSort" class="form-select store-input" [(ngModel)]="sort" (ngModelChange)="onFilterChange()"><option value="newest">Newest arrivals</option><option value="oldest">Oldest first</option><option value="price-asc">Price: low to high</option><option value="price-desc">Price: high to low</option><option value="name-asc">Name: A to Z</option></select>
+    @if (optionsLoading) { <p class="filter-helper" role="status">Loading available options…</p> }
+    @if (optionsError) { <div class="filter-helper" role="status">{{ optionsError }} <button type="button" class="text-button" (click)="loadFilterOptions()">Retry options</button></div> }
+    <div class="filter-note"><span aria-hidden="true">✓</span><p>Filters are applied to the catalogue on the server. Stock and price are checked again before checkout.</p></div>
+    <button type="button" class="filter-done-button" (click)="filtersOpen = false">Show {{ pagination.totalItems }} results</button>
+  </aside>
+
+  <div class="shop-results">
+    @if (cartMessage) { <div class="alert alert-success" role="status">{{ cartMessage }}</div> }
+    @if (cartError) { <div class="alert alert-warning" role="alert">{{ cartError }}</div> }
+
+    <div class="results-toolbar"><div><span class="results-count">{{ pagination.totalItems }}</span> <span class="results-label">pieces to explore</span></div><span class="results-note">{{ pagination.totalPages ? 'Page ' + pagination.page + ' of ' + pagination.totalPages : 'Your edit starts here' }}</span></div>
+
+    @if (hasActiveFilters) {
+      <div class="applied-filters" aria-label="Applied filters"><span class="applied-label">Applied</span>@for (filter of activeFilters; track filter.key) { <button type="button" class="filter-chip" (click)="removeFilter(filter.key)" [attr.aria-label]="'Remove ' + filter.label"><span>{{ filter.label }}</span><span aria-hidden="true">×</span></button> }<button type="button" class="clear-filters-link" (click)="resetFilters()">Clear all</button></div>
+    }
+
+    @if (loading) { <div class="loading-state" role="status"><span class="loading-pulse" aria-hidden="true"></span>Updating your edit…</div> }
+    @if (errorMessage) { <div class="alert alert-warning shop-error" role="alert"><strong>We couldn’t refresh the collection.</strong><p>{{ errorMessage }}</p><button type="button" class="button-solid" (click)="loadProducts()">Try again</button></div> }
+
+    @if (!loading && products.length) {
+      <div class="product-grid">@for (product of products; track product._id) { <app-product [myProduct]="product" [quickAddBusy]="quickAddBusyId === product._id" (quickAdd)="quickAdd($event)" /> }</div>
+      <nav class="shop-pagination" aria-label="Product pages"><button type="button" class="page-button" [disabled]="page <= 1 || loading" (click)="changePage(page - 1)">← Previous</button><span>Page {{ pagination.page }} of {{ pagination.totalPages }}</span><button type="button" class="page-button" [disabled]="page >= pagination.totalPages || loading" (click)="changePage(page + 1)">Next →</button></nav>
+    }
+    @if (!loading && !errorMessage && !products.length) { <div class="empty-state"><span class="empty-mark">M.</span><strong>No pieces match these filters.</strong><span>Try another size or colour, or clear the filters to see everything in the collection.</span><button class="button-solid" type="button" (click)="resetFilters()">Explore all pieces</button></div> }
+  </div>
+</section>

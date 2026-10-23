@@ -1,0 +1,20 @@
+@if (toast$ | async; as toast) {
+  <div class="toast-viewport">
+    <section
+      class="app-toast"
+      [class.app-toast--success]="toast.kind === 'success'"
+      [class.app-toast--error]="toast.kind === 'error'"
+      [class.app-toast--info]="toast.kind === 'info'"
+      [attr.role]="toast.kind === 'error' ? 'alert' : 'status'"
+      aria-live="polite"
+      [attr.data-toast-id]="toast.id">
+      <span class="app-toast__icon" aria-hidden="true">
+        @if (toast.kind === 'success') { ✓ }
+        @else if (toast.kind === 'error') { ! }
+        @else { i }
+      </span>
+      <span class="app-toast__message">{{ toast.message }}</span>
+      <button type="button" class="app-toast__close" aria-label="Dismiss notification" (click)="dismiss()">×</button>
+    </section>
+  </div>
+}

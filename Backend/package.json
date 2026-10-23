@@ -1,0 +1,45 @@
+{
+  "name": "mmarket-store-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js",
+    "seed:catalog": "node scripts/seed-catalog.js",
+    "test:error-handling": "node --test tests/error-handling.test.js",
+    "test:logging": "node --test tests/logging.test.js",
+    "test:product-pagination": "node --test tests/product-pagination.test.js",
+    "test:product-caching": "node --test tests/product-caching.test.js",
+    "test:product-integration": "node --test tests/product-pagination.integration.test.js",
+    "test:phase3": "node --test tests/phase3/transactions.test.js",
+    "test": "node --test tests/*.test.js tests/phase3/*.test.js",
+    "check:syntax": "node scripts/check-syntax.js",
+    "test:unit": "node --test tests/catalog-seed-definition.test.js tests/category-model.test.js tests/error-handling.test.js tests/guest-checkout.test.js tests/logging.test.js tests/order-cancellation.test.js tests/password-validation.test.js tests/product-caching.test.js tests/product-filter-options.test.js tests/product-filters.test.js tests/product-model.test.js tests/product-pagination.test.js tests/rate-limit.test.js tests/payment-contract.test.js tests/tryon-service.test.js tests/guest-checkout-policy.test.js tests/user-registration.test.js tests/media-and-discovery.test.js tests/env-validation.test.js tests/frontend-template-safety.test.js",
+    "test:guest-checkout-policy": "node --test tests/guest-checkout-policy.test.js",
+    "check:imports": "node scripts/check-imports.js",
+    "check": "npm run check:syntax && npm run check:imports"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.5",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.11.0",
+    "multer": "^2.4.0",
+    "node-cache": "^5.1.2",
+    "sanitize-html": "^2.18.0",
+    "slugify": "^1.6.9",
+    "socket.io": "^4.8.4",
+    "winston": "^3.19.0",
+    "winston-daily-rotate-file": "^5.0.0"
+  },
+  "devDependencies": {
+    "mongodb-memory-server": "^11.3.0"
+  }
+}
