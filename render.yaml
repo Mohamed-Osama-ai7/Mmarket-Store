@@ -1,0 +1,34 @@
+services:
+  - type: web
+    name: mmarket-store-backend
+    runtime: node
+    rootDir: Backend
+    buildCommand: npm ci
+    startCommand: npm start
+    plan: free
+    healthCheckPath: /health/live
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PAYMENT_PROVIDER
+        value: manual
+      - key: CACHE_STORE
+        value: memory
+      - key: SHARED_RATE_LIMIT_STORE
+        value: memory
+      - key: TRUST_PROXY
+        value: "true"
+      - key: ALLOWED_ORIGINS
+        value: https://mmarket-store.vercel.app
+      - key: PUBLIC_SITE_URL
+        value: https://mmarket-store.vercel.app
+      - key: APP_URL
+        value: https://mmarket-store.vercel.app
+      - key: JWT_EXPIRES_IN
+        value: 1d
+      - key: DUMMY_PASSWORD_HASH
+        value: "$2b$12$HrcL.PN5mx6kmCl22zS71eodMVI2A3iYLafBfkmFC0rBgFIgs/fgy"
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
