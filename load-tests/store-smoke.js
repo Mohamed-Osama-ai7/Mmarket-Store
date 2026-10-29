@@ -15,7 +15,7 @@ export const options = {
 };
 
 export default function () {
-  const health = http.get(`${baseUrl}/api/v1/health/ready`);
+  const health = http.get(`${baseUrl}/api/v1/health`);
   check(health, { 'API readiness returns 200': (response) => response.status === 200 });
   const products = http.get(`${baseUrl}/api/v1/product?page=1&pageSize=12&sort=newest`);
   check(products, {

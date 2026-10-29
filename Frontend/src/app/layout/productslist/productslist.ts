@@ -2,6 +2,7 @@ import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit } from '
 import { Meta, Title } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { describeLoadError } from '../../core/utils/load-error';
 import { Subject, catchError, finalize, of, switchMap, takeUntil, timer } from 'rxjs';
 import { ProductService, ProductFilters } from '../../core/services/product.service';
 import { CategoryService } from '../../core/services/category.service';
@@ -178,7 +179,7 @@ export class Productslist implements OnInit, AfterViewInit, OnDestroy {
       const looksInternal = /(?:\bstack trace\b|\bnode_modules\b|\bmongodb:\/\/|\bsecret\b|\bpassword\b|\n\s*at\s)/i.test(message);
       if (message && message.length <= 180 && !looksInternal) return message;
     }
-    return 'Could not load products. Check that the backend is running, then try again.';
+    return describeLoadError(error, 'the product catalogue').message;
   }
 
   get hasActiveFilters(): boolean { return this.activeFilters.length > 0; }

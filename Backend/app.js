@@ -4,8 +4,15 @@ const requestLogger = require("./middlewares/requestLogger");
 
 const app = express();
 app.disable("x-powered-by");
-// Trust exactly one reverse proxy only when explicitly enabled by deployment.
-app.set("trust proxy", process.env.TRUST_PROXY === "true" ? 1 : false);
+// Trust reverse proxies only when the deployment says so: "true" = one hop, or a number of hops.
+// The hop count decides which X-Forwarded-For entry becomes req.ip (and therefore the rate-limit key),
+// so set it to the real number of proxies in front of the API.
+const parseTrustProxy = value => {
+    if (value === "true") return 1;
+    if (/^[1-9]\d?$/.test(String(value || ""))) return Number(value);
+    return false;
+};
+app.set("trust proxy", parseTrustProxy(process.env.TRUST_PROXY));
 
 // Low-cost default browser security headers; deployment should still terminate HTTPS.
 app.use((req, res, next) => {
@@ -18,6 +25,7 @@ app.use((req, res, next) => {
     res.setHeader("Origin-Agent-Cluster", "?1");
     res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
     res.setHeader("Cache-Control", "no-store");
+    if (process.env.NODE_ENV === "production") res.setHeader("Strict-Transport-Security", "max-age=15552000; includeSubDomains");
     next();
 });
 
