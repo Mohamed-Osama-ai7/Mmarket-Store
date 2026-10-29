@@ -85,7 +85,7 @@ export class ProductService {
     if (filters.minRating !== null && filters.minRating !== undefined) params = params.set('minRating', filters.minRating);
     if (filters.sort) params = params.set('sort', filters.sort);
     return this.http.get<unknown>(this.apiURL, { params }).pipe(
-      timeout({ first: 12000 }),
+      timeout({ first: 30000 }),
       map(parseProductListResponse),
     );
   }

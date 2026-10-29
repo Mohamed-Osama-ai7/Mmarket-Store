@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 import { Router, RouterLink } from '@angular/router';
 import { ProductService } from '../../core/services/product.service';
@@ -8,6 +8,7 @@ import { Product } from '../productslist/product/product';
 import { CartService } from '../../core/services/cart.service';
 import { ToastService } from '../../core/services/toast.service';
 import { SiteContentService } from '../../core/services/site-content.service';
+import { describeLoadError } from '../../core/utils/load-error';
 import { ISiteContent } from '../../core/models/site-content.model';
 
 @Component({
@@ -16,14 +17,16 @@ import { ISiteContent } from '../../core/models/site-content.model';
   templateUrl: './home.html',
   styleUrl: './home.css',
 })
-export class Home implements OnInit {
+export class Home implements OnInit, OnDestroy {
   products: IProduct[] = [];
   allProducts: IProduct[] = [];
   categories: ICategory[] = [];
   featuredProduct: IProduct | null = null;
   featuredImage = '/product-placeholder.svg';
   loading = true;
+  slowLoad = false;
   errorMessage = '';
+  private slowTimer?: ReturnType<typeof setTimeout>;
   cartMessage = '';
   cartError = '';
   siteContent: ISiteContent | null = null;
@@ -70,11 +73,17 @@ export class Home implements OnInit {
 
   private loadCatalogue(): void {
     this.loading = true;
+    this.slowLoad = false;
     this.errorMessage = '';
+    clearTimeout(this.slowTimer);
+    // Hosted backends can need a few seconds to wake up; tell the shopper instead of showing a bare spinner.
+    this.slowTimer = setTimeout(() => { this.slowLoad = true; this.changeDetector.markForCheck(); }, 5000);
     // Read products from MongoDB through our own API. Docker seeds the starter
     // catalogue before starting the frontend. ProductService adds a request timeout.
     this.productService.getAllProducts(1, 24).subscribe({
       next: (response) => {
+        clearTimeout(this.slowTimer);
+        this.slowLoad = false;
         const catalogue = Array.isArray(response?.data) ? response.data : [];
         this.allProducts = catalogue;
         this.products = catalogue.slice(0, 8);
@@ -90,13 +99,17 @@ export class Home implements OnInit {
         this.loading = false;
         this.changeDetector.markForCheck();
       },
-      error: () => {
-        this.errorMessage = 'We could not reach the product catalogue. Make sure the backend and MongoDB are running, then try again.';
+      error: (error: unknown) => {
+        clearTimeout(this.slowTimer);
+        this.slowLoad = false;
+        this.errorMessage = describeLoadError(error, 'the product catalogue').message;
         this.loading = false;
         this.changeDetector.markForCheck();
       },
     });
   }
+
+  ngOnDestroy(): void { clearTimeout(this.slowTimer); }
 
   retryCatalogue(): void {
     this.loadCatalogue();

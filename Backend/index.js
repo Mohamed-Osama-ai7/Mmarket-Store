@@ -82,21 +82,35 @@ const shutdown = signal => {
 process.once("SIGTERM", () => shutdown("SIGTERM"));
 process.once("SIGINT", () => shutdown("SIGINT"));
 
-const startServer = async () => {
+// Listen first so the platform sees an open port and /health/live answers while MongoDB is
+// still connecting; /health/ready stays 503 until the database is reachable. A failed connection
+// is retried with backoff instead of killing the process, so a temporary Atlas/network problem
+// self-heals and the logs show the real reason.
+const connectWithRetry = async (attempt = 1) => {
+    try {
+        await dbConfig();
+    } catch (error) {
+        const delay = Math.min(30_000, 2_000 * attempt);
+        logger.logError("database.connect.failed", error);
+        logger.logSafely("warn", "Retrying MongoDB connection", { event: "database.connect.retry", attempt, delayMs: delay });
+        if (shuttingDown) return;
+        setTimeout(() => connectWithRetry(attempt + 1), delay);
+    }
+};
+
+const startServer = () => {
     try {
         assertEnv();
-        await dbConfig();
-        server.listen(port, () => {
-            logger.logSafely("info", "Server started", {
-                event: "server.started",
-                port
-            });
-        });
     } catch (error) {
         logger.logError("server.start.failed", error);
         process.exitCode = 1;
         logger.end();
+        return;
     }
+    server.listen(port, "0.0.0.0", () => {
+        logger.logSafely("info", "Server started", { event: "server.started", port });
+    });
+    connectWithRetry();
 };
 
 startServer();
