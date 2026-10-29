@@ -11,6 +11,7 @@ export class ThemeService {
   private readonly storageKey = 'market-theme';
   private readonly themeSubject = new BehaviorSubject<StoreTheme>(this.getInitialTheme());
   readonly theme$ = this.themeSubject.asObservable();
+  private lightSurface = false;
 
   constructor() {
     this.apply(this.themeSubject.value);
@@ -21,6 +22,17 @@ export class ThemeService {
 
   toggle(): void {
     this.setTheme(this.isDark ? 'light' : 'dark');
+  }
+
+  /** The admin dashboard is designed on a light surface: show it light without changing the saved preference. */
+  useLightSurface(): void {
+    this.lightSurface = true;
+    this.apply(this.currentTheme);
+  }
+
+  restoreSurface(): void {
+    this.lightSurface = false;
+    this.apply(this.currentTheme);
   }
 
   setTheme(theme: StoreTheme): void {
@@ -41,7 +53,8 @@ export class ThemeService {
   }
 
   private apply(theme: StoreTheme): void {
-    this.document.documentElement.setAttribute('data-theme', theme);
-    this.document.documentElement.style.colorScheme = theme;
+    const shown = this.lightSurface ? 'light' : theme;
+    this.document.documentElement.setAttribute('data-theme', shown);
+    this.document.documentElement.style.colorScheme = shown;
   }
 }
