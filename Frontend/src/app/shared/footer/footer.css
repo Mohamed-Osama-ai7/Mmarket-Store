@@ -9,3 +9,4 @@
 @media(max-width:600px) { .footer-top,.footer-bottom { flex-direction:column; } .footer-links { gap:16px; } }
 
 .footer-link-group h2{font-size:.78rem;font-weight:850;color:#fff;margin:0 0 13px}.footer-link-group .footer-links{display:grid;gap:11px}.footer-contact{display:block;color:#d5c3c4;font-size:.78rem;text-decoration:none;margin-top:7px}.footer-social{display:flex;flex-wrap:wrap;gap:18px;padding-top:0;padding-bottom:18px}.footer-social a{color:#e2d4d4;text-decoration:none;font-size:.75rem}.footer-social a:hover,.footer-contact:hover{color:#fff}
+.footer-links a, .footer-contact, .footer-brand { display:inline-flex; align-items:center; min-height:32px; }

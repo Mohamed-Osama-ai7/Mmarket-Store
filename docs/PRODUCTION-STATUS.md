@@ -60,3 +60,8 @@ Throughput plateaus near 400 req/s for the catalogue on one Node process (latenc
 ## Monitoring
 
 Alert on: `/health/ready` ≠ 200, HTTP 5xx rate, p95 latency, Atlas connection count/CPU, process memory restarts, and `database.connect.failed` / `security.rate_limit_store.failed` log events.
+
+## Frontend bundle budget and test prerequisites
+
+- The initial bundle is 486 kB raw (budget 500 kB). The savings came from `Frontend/src/bootstrap-custom.scss`: the unused Bootstrap partials (`nav`, `progress`, `card`, `pagination`, `toasts`, `placeholders`) and the unused utility families (flex, gap, padding, font-weight, opacity) were removed because no template references them. If a template needs one of them, add the partial or utility key back in that file.
+- `npm test` in `Backend` starts temporary in-memory MongoDB replica sets (`mongodb-memory-server`). MongoDB refuses to start with less than 500 MB free on the drive holding the temp directory, so low disk space shows up as `OutOfDiskSpace` / `No space left on device` failures in the checkout, payment and refund tests. Free disk space before treating those as code failures.

@@ -30,15 +30,15 @@ The Backend retains the layer-first MVC layout already present in the source pac
 
 For the 15 focused tests, `NODE_PATH` pointed to a temporary external dependency subset, and a temporary test-only `winston-daily-rotate-file` compatibility shim was used solely to load the registration controller. The shim is **not** included in the release archive. The production `npm ci` environment should use the real locked package.
 
-## Results previously reported by Claude (provided in chat, not independently reproduced here)
+## Prior reported verification results (not independently reproduced in this archive)
 
-The supplied Claude progress report described a separate working copy where the backend suite passed **160/160** with a real disposable MongoDB server, the Angular build succeeded with a bundle-budget warning, **18/18** frontend tests passed, and **50/50** live API checks passed. That report also explicitly said no ZIP or report had been packaged in that environment. Because the separate working directory was not available to compare byte-for-byte, these results are recorded as prior reported evidence and are **not counted as tests performed on this archive**.
+Development progress notes described a separate working copy where the backend suite passed **160/160** with a real disposable MongoDB server, the Angular build succeeded with a bundle-budget warning, **18/18** frontend tests passed, and **50/50** live API checks passed. That report also explicitly noted no ZIP or report had been packaged in that environment. Because the separate working directory was not available to compare byte-for-byte, these results are recorded as prior reported evidence and are **not counted as tests performed on this archive**.
 
 ## Security and dependency notes
 
 - No `.env`, credentials, `node_modules`, Angular `dist` output, or local database files are included.
-- The lockfile in this artifact still pins `sanitize-html` at **2.18.0**. Claude's progress report said a separate working copy had moved it to 2.18.1, but that lockfile change was not available in the packaged source used here. A fresh audit and a compatible lockfile update remain pending because the npm registry is unreachable in this environment.
-- The supplied Claude report also noted two Frontend audit findings (one low, one high) in the Vite dependency path through `@angular/build`; it did not apply the offered force fix because that would downgrade Angular. Recheck this against the actual lockfile with `npm audit` before release.
+- The lockfile in this artifact still pins `sanitize-html` at **2.18.0**. Prior progress notes indicated an earlier attempt to update to 2.18.1, but that lockfile change was not available in the packaged source used here. A fresh audit and a compatible lockfile update remain pending.
+- Prior security review notes also observed two Frontend audit findings (one low, one high) in the Vite dependency path through `@angular/build`; it did not apply the offered force fix because that would downgrade Angular. Recheck this against the actual lockfile with `npm audit` before release.
 - Do not use `npm audit fix --force`. Do not use real customer data or the `mean-l2` database for destructive integration tests.
 - The documented checkout currently supports Cash on Delivery; do not describe card or wallet payments as implemented. True Angular SSR/hydration is also not included.
 
