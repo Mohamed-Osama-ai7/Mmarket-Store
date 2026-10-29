@@ -4,7 +4,7 @@
 <header class="site-header">
   <div class="container header-inner">
     <a class="brand" routerLink="/home" (click)="closeMenu()" aria-label="Store home">
-      @if (siteContent?.brand?.logoUrl) { <img class="brand-image" [src]="siteContent?.brand?.logoUrl" [alt]="siteContent?.brand?.storeName || 'Mmarket'"> } @else { <span class="brand-mark">M</span> }<span>{{ siteContent?.brand?.storeName || 'Mmarket' }}<span class="brand-dot">.</span></span>
+      @if (siteContent?.brand?.logoUrl) { <img class="brand-image" [src]="siteContent?.brand?.logoUrl" [alt]="siteContent?.brand?.storeName || 'Mmarket'" (error)="$any($event.target).style.display='none'"> } @else { <span class="brand-mark">M</span> }<span>{{ siteContent?.brand?.storeName || 'Mmarket' }}<span class="brand-dot">.</span></span>
     </a>
     <button class="menu-toggle" type="button" (click)="menuOpen = !menuOpen" [attr.aria-expanded]="menuOpen" aria-label="Toggle navigation">☰</button>
     <nav class="main-nav" [class.is-open]="menuOpen">

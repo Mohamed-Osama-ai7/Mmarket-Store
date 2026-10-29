@@ -87,7 +87,7 @@
 @if (siteContent?.homepage?.sections?.length) {
   @for (section of siteContent?.homepage?.sections || []; track section._id || section.title) {
     <section class="container cms-home-section" [class.cms-home-section-image]="section.type === 'image-promo'">
-      @if (section.imageUrl && section.type === 'image-promo') { <img class="cms-section-image" [src]="section.imageUrl" [alt]="section.title" loading="lazy"> }
+      @if (section.imageUrl && section.type === 'image-promo') { <img class="cms-section-image" [src]="section.imageUrl" [alt]="section.title" loading="lazy" (error)="$any($event.target).style.display='none'"> }
       <div class="cms-section-copy">
         @if (section.eyebrow) { <span class="eyebrow">{{ section.eyebrow }}</span> }
         <h2>{{ section.title }}</h2>
